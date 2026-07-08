@@ -1,0 +1,11 @@
+# Hercules RUN-COMMANDS (RC) for 3.1 File
+pause 15
+fac ena 129
+pause 3
+fac ena 054
+pause 3
+fac ena 130
+pause 3
+fac ena 134
+pause 3
+fac ena 135
