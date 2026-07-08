@@ -1,0 +1,162 @@
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+
+export default function App() {
+  const [currentOperand, setCurrentOperand] = useState('0');
+  const [previousOperand, setPreviousOperand] = useState('');
+  const [operation, setOperation] = useState(null);
+  const [history, setHistory] = useState([]);
+  const [memory, setMemory] = useState(null); // Stores { operation, operand }
+  const [isDarkMode, setIsDarkMode] = useState(true);
+  const [errorToast, setErrorToast] = useState(null);
+  const audioCtx = useRef(null);
+
+  const playSound = useCallback((type) => {
+    try {
+      if (!audioCtx.current) {
+        audioCtx.current = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      const osc = audioCtx.current.createOscillator();
+      const gain = audioCtx.current.createGain();
+      osc.connect(gain);
+      gain.connect(audioCtx.current.destination);
+
+      const now = audioCtx.current.currentTime;
+      if (type === 'action') {
+        osc.frequency.setValueAtTime(650, now);
+        osc.frequency.exponentialRampToValueAtTime(120, now + 0.08);
+        gain.gain.setValueAtTime(0.06, now);
+      } else if (type === 'compute') {
+        osc.frequency.setValueAtTime(440, now);
+        osc.frequency.exponentialRampToValueAtTime(880, now + 0.12);
+        gain.gain.setValueAtTime(0.04, now);
+      } else {
+        osc.frequency.setValueAtTime(450, now);
+        osc.frequency.exponentialRampToValueAtTime(80, now + 0.05);
+        gain.gain.setValueAtTime(0.04, now);
+      }
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.12);
+      osc.start();
+      osc.stop(now + 0.13);
+    } catch (e) {}
+  }, []);
+
+  const getDisplayNumber = (number) => {
+    const stringNumber = number.toString();
+    if (stringNumber === '-') return '-';
+    if (stringNumber.includes('e')) return stringNumber;
+    const [int, dec] = stringNumber.split('.');
+    const intDisplay = parseFloat(int).toLocaleString('en', { maximumFractionDigits: 0 });
+    return dec != null ? `${intDisplay}.${dec}` : intDisplay;
+  };
+
+  const showError = (msg) => {
+    setErrorToast(msg);
+    setTimeout(() => setErrorToast(null), 3000);
+  };
+
+  const compute = useCallback((prev, curr, op) => {
+    const p = parseFloat(prev);
+    const c = parseFloat(curr);
+    if (isNaN(p) || isNaN(c)) return null;
+    let res;
+    switch (op) {
+      case '+': res = p + c; break;
+      case '-': res = p - c; break;
+      case '×': res = p * c; break;
+      case '÷': 
+        if (c === 0) { showError("Div by zero"); return null; }
+        res = p / c; 
+        break;
+      case '^': res = Math.pow(p, c); break;
+      case '%': res = p % c; break;
+      default: return null;
+    }
+    return Math.round(res * 1e8) / 1e8;
+  }, []);
+
+  const handleCompute = () => {
+    if (!operation || currentOperand === '') return;
+    const result = compute(previousOperand, currentOperand, operation);
+    if (result === null) return;
+    
+    setMemory({ operation, operand: parseFloat(currentOperand) });
+    setHistory([{ expr: `${previousOperand} ${operation} ${currentOperand}`, res: result }, ...history]);
+    setCurrentOperand(result.toString());
+    setPreviousOperand('');
+    setOperation(null);
+    playSound('compute');
+  };
+
+  useEffect(() => {
+    const handleKey = (e) => {
+      if (e.key >= '0' && e.key <= '9') {
+        setCurrentOperand(prev => prev === '0' ? e.key : prev + e.key);
+      } else if (e.key === '.') {
+        if (!currentOperand.includes('.')) setCurrentOperand(prev => prev + '.');
+      } else if (e.key === 'Backspace') {
+        setCurrentOperand(prev => prev.length > 1 ? prev.slice(0, -1) : '0');
+      } else if (e.key === 'Enter' || e.key === '=') {
+        handleCompute();
+      } else if (['+', '-', '*', '/'].includes(e.key)) {
+        const opMap = { '*': '×', '/': '÷', '-': '−' };
+        const op = opMap[e.key] || e.key;
+        setOperation(op);
+        setPreviousOperand(currentOperand);
+        setCurrentOperand('');
+      }
+    };
+    window.addEventListener('keydown', handleKey);
+    return () => window.removeEventListener('keydown', handleKey);
+  }, [currentOperand, operation, handleCompute]);
+
+  return (
+    <div className={`min-h-screen flex items-center justify-center p-4 transition-colors duration-300 ${isDarkMode ? 'bg-slate-900' : 'bg-gray-100'}`}>
+      <div className={`w-full max-w-sm rounded-3xl shadow-2xl p-6 transition-all ${isDarkMode ? 'bg-slate-950/90 border border-slate-800' : 'bg-white border border-gray-200'}`}>
+        
+        {/* Memory & Error Displays */}
+        <div className="relative mb-4 h-8">
+            {memory && (
+                <span className="absolute left-0 text-[10px] font-mono text-purple-400 bg-purple-950/30 px-2 py-0.5 rounded">
+                    M: {memory.operation} {memory.operand}
+                </span>
+            )}
+            {errorToast && (
+                <span className="absolute right-0 text-[10px] font-mono text-red-400 bg-red-950/30 px-2 py-0.5 rounded">{errorToast}</span>
+            )}
+        </div>
+
+        {/* Calculator Display */}
+        <div className="text-right mb-6">
+          <div className="text-gray-500 text-sm font-mono">{previousOperand} {operation}</div>
+          <div className={`text-4xl font-bold font-mono ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
+            {getDisplayNumber(currentOperand)}
+          </div>
+        </div>
+
+        {/* Buttons */}
+        <div className="grid grid-cols-4 gap-2">
+            <button className="col-span-2 p-4 bg-red-900/20 text-red-500 rounded-xl" onClick={() => {setCurrentOperand('0'); setPreviousOperand(''); setOperation(null);}}>AC</button>
+            <button className="p-4 bg-slate-800 text-slate-300 rounded-xl" onClick={() => setCurrentOperand(c => c.slice(0, -1) || '0')}>DEL</button>
+            <button className="p-4 bg-purple-900/20 text-purple-400 rounded-xl font-bold" onClick={() => {
+                if (memory && currentOperand !== '') {
+                    const res = compute(currentOperand, memory.operand, memory.operation);
+                    setCurrentOperand(res.toString());
+                    playSound('compute');
+                }
+            }}>M</button>
+
+            {['7','8','9','×','4','5','6','÷','1','2','3','−','0','.','^','+'].map(btn => (
+                <button key={btn} className={`p-4 rounded-xl ${isNaN(btn) && btn !== '.' ? 'bg-cyan-900/20 text-cyan-400' : 'bg-slate-800/40 text-slate-200'}`}
+                    onClick={() => {
+                        if (!isNaN(btn) || btn === '.') setCurrentOperand(c => (c === '0' && btn !== '.') ? btn : c + btn);
+                        else { setOperation(btn); setPreviousOperand(currentOperand); setCurrentOperand(''); }
+                    }}>{btn}</button>
+            ))}
+            <button className="col-span-4 p-4 bg-cyan-500 text-slate-950 rounded-xl font-bold" onClick={handleCompute}>=</button>
+        </div>
+
+        <button className="mt-4 w-full text-xs text-slate-500" onClick={() => setIsDarkMode(!isDarkMode)}>Toggle Theme</button>
+      </div>
+    </div>
+  );
+}

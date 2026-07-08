@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Offline Calculator</title>
+    <!-- 1. Link to your external stylesheet -->
+    <!-- 2. Link to your external script (using 'defer' so it runs after HTML loads) -->
+    <link rel="stylesheet" href="tomsstyle.css">
+</head>
+<body>
+    <div class="calculator">
+	<div class="calculator-header">
+		<div class="header-dots">
+		    <span class="dot red" onclick="closeWindow()"></span>
+		    <span class="dot yellow"></span>
+		    <span class="dot green"></span>
+		</div>
+        	<div class="display">
+           	    <div id="previous-operand" class="previous-operand"></div>
+            	    <div id="current-operand" class="current-operand">0</div>
+        	</div>
+	</div>
+
+        <div class="keypad">
+            <button class="btn btn-ac span-2" data-action="clear">AC</button>
+            <button class="btn btn-del" data-action="delete">DEL</button>
+            <button class="btn btn-del" data-action="sqrt">^</button>
+            <button class="btn btn-del" data-action="operation">^</button>
+            <button class="btn btn-op" data-action="operation">÷</button>
+
+            <button class="btn btn-num" data-action="number">7</button>
+            <button class="btn btn-num" data-action="number">8</button>
+            <button class="btn btn-num" data-action="number">9</button>
+            <button class="btn btn-op" data-action="operation">×</button>
+
+            <button class="btn btn-num" data-action="number">4</button>
+            <button class="btn btn-num" data-action="number">5</button>
+            <button class="btn btn-num" data-action="number">6</button>
+            <button class="btn btn-op" data-action="operation">−</button>
+
+            <button class="btn btn-num" data-action="number">1</button>
+            <button class="btn btn-num" data-action="number">2</button>
+            <button class="btn btn-num" data-action="number">3</button>
+            <button class="btn btn-op" data-action="operation">+</button>
+
+            <button class="btn btn-num" data-action="number">.</button>
+            <button class="btn btn-num" data-action="number">0</button>
+            <button class="btn btn-eq span-2" data-action="compute">=</button>
+        </div>
+    </div>
+    <script src="script.js" defer></script>
+    <div id="modal-container" class="modal-container-hidden">
+       <!--  ... copy modal structure from index.html code above ...
+    </div>
+</body>
+</html>

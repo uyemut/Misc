@@ -1,0 +1,131 @@
+        :root {
+            --bg-gradient-start: #f3f4f6;
+            --bg-gradient-end: #d1d5db;
+            --calc-bg: #ffffff;
+            --text-main: #1f2937;
+            --text-muted: #9ca3af;
+            
+            /* Button Colors */
+            --btn-num-bg: #f9fafb;
+            --btn-num-hover: #f3f4f6;
+            --btn-op-bg: #dbeafe;
+            --btn-op-text: #2563eb;
+            --btn-op-hover: #bfdbfe;
+            --btn-ac-bg: #fee2e2;
+            --btn-ac-text: #dc2626;
+            --btn-ac-hover: #fecaca;
+            --btn-del-bg: #f3f4f6;
+            --btn-del-text: #374151;
+            --btn-del-hover: #e5e7eb;
+            --btn-eq-bg: #3b82f6;
+            --btn-eq-text: #ffffff;
+            --btn-eq-hover: #2563eb;
+            
+            /* Borders and Shadows */
+            --border-color: #e5e7eb;
+            --shadow-calc: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            --shadow-btn: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-btn-heavy: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(to bottom right, var(--bg-gradient-start), var(--bg-gradient-end));
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 1rem;
+            box-sizing: border-box;
+        }
+
+        .calculator {
+            background: var(--calc-bg);
+            padding: 1.5rem;
+            border-radius: 1.5rem;
+            box-shadow: var(--shadow-calc);
+            width: 100%;
+            max-width: 24rem;
+            border: 1px solid var(--border-color);
+            box-sizing: border-box;
+        }
+
+        .display {
+            margin-bottom: 1.5rem;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            padding: 0 0.5rem;
+        }
+
+        .previous-operand {
+            color: var(--text-muted);
+            font-size: 0.875rem;
+            min-height: 1.25rem;
+            font-family: monospace;
+            letter-spacing: 0.05em;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            max-width: 100%;
+        }
+
+        .current-operand {
+            color: var(--text-main);
+            font-size: 2.25rem;
+            font-weight: 700;
+            font-family: monospace;
+            letter-spacing: 0.1em;
+            word-break: break-all;
+            min-height: 3rem;
+            display: flex;
+            align-items: flex-end;
+            justify-content: flex-end;
+            overflow: hidden;
+            max-width: 100%;
+        }
+
+        .keypad {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.75rem;
+        }
+
+        .btn {
+            border: none;
+            outline: none;
+            padding: 1rem 0;
+            border-radius: 1rem;
+            font-weight: 600;
+            font-size: 1.25rem;
+            cursor: pointer;
+            transition: all 0.1s ease-in-out;
+            user-select: none;
+            box-shadow: var(--shadow-btn);
+            font-family: inherit;
+        }
+
+        .btn:active {
+            transform: scale(0.95);
+        }
+
+        .btn.span-2 {
+            grid-column: span 2;
+        }
+
+        .btn-ac { background: var(--btn-ac-bg); color: var(--btn-ac-text); }
+        .btn-ac:hover { background: var(--btn-ac-hover); }
+
+        .btn-del { background: var(--btn-del-bg); color: var(--btn-del-text); }
+        .btn-del:hover { background: var(--btn-del-hover); }
+
+        .btn-op { background: var(--btn-op-bg); color: var(--btn-op-text); font-size: 1.5rem; font-weight: 700; }
+        .btn-op:hover { background: var(--btn-op-hover); }
+
+        .btn-num { background: var(--btn-num-bg); color: var(--text-main); }
+        .btn-num:hover { background: var(--btn-num-hover); }
+
+        .btn-eq { background: var(--btn-eq-bg); color: var(--btn-eq-text); font-size: 1.5rem; font-weight: 700; box-shadow: var(--shadow-btn-heavy); }
+        .btn-eq:hover { background: var(--btn-eq-hover); }
